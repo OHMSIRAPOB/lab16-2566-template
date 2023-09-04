@@ -29,9 +29,12 @@ export const GET = async (request) => {
   if (program !== null) {
     filtered = filtered.filter((std) => std.program === program);
   }
-
+  //เพิ่มการหาด้วย studentid
+  if(studentId !== null) {
+    filtered = filtered.filter((std) => std.studentId === studentId);
+  }
   //filter by student id here
-
+  
   return NextResponse.json({ ok: true, students: filtered });
 };
 
@@ -100,16 +103,33 @@ export const DELETE = async (request) => {
   //get body and validate it
 
   //check if student id exist
+  const body = await request.json();
+
+  const foundIndex = DB.students.findIndex(
+    (std) => std.studentId === body.studentId
+  ); 
+    if(foundIndex === -1){
+        return NextResponse.json({
+            ok: false,
+            messeage: "Student Id must contain 9 characters",
+        },
+        {
+            status:400,
+        }
+        );
+    }
+   
 
   //perform removing student from DB. You can choose from 2 choices
   //1. use array filter method
   // DB.students = DB.students.filter(...);
-
+  DB.students.splice((std) => std.studentId !== body.studentId);
   //or 2. use splice array method
   // DB.students.splice(...)
 
   return NextResponse.json({
     ok: true,
-    message: `Student Id xxx has been deleted`,
+    message: `Student ID ${body.studentId} has been deleted`,
   });
 };
+
